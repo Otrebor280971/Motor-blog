@@ -65,20 +65,21 @@ const upload = multer({ storage });
 
 /* ENDPOINTS */
 
-app.get('/posts', (req, res) => {
-    const query = `
-        SELECT post.*, author.name AS author_name 
-        FROM post 
-        JOIN author ON post.id_author = author.id_author
-    `;
+app.get('/posts', async (req, res) => {
+    try {
+        const data = await db.any(`
+            SELECT post.*, author.name AS author_name 
+            FROM post 
+            JOIN author ON post.id_author = author.id_author
+        `);
 
-    db.any(query)
-    .then((data) => res.json(data))
-    .catch((error) => console.log('ERROR:', error));
-    if (err) {
-            return res.status(500).send('Failed to destroy session');
+        return res.json(data);
+    } catch (error) {
+        console.error('ERROR:', error);
+        if (!res.headersSent) {
+            return res.status(500).json({ error: error.message });
         }
-        res.send('Session destroyed');
+    }
 });
 
 app.get('/posts/:id_post', (req, res) => {
