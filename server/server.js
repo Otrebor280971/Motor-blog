@@ -11,11 +11,11 @@ app.use(express.json());
 
 const pgp = require('pg-promise')();
 const cn = {
-    host: process.env.HOST,
-    port: process.env.PORT,
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
     database: process.env.DB_NAME,
     user: process.env.DB_USER,
-    password: process.env.PASSWORD,
+    password: process.env.DB_PASS,
     allowExitOnIdle: true
 }
 const db = pgp(cn)
@@ -75,6 +75,10 @@ app.get('/posts', (req, res) => {
     db.any(query)
     .then((data) => res.json(data))
     .catch((error) => console.log('ERROR:', error));
+    if (err) {
+            return res.status(500).send('Failed to destroy session');
+        }
+        res.send('Session destroyed');
 });
 
 app.get('/posts/:id_post', (req, res) => {
